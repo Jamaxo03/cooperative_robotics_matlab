@@ -1,0 +1,15 @@
+# Ignora tutto ciò che sta nella radice del repository...
+/*
+
+# ...tranne questi file e la cartella dei task
+!/.gitignore
+!/.gitattributes
+!/RobustMain.m
+!/tpik/
+
+# File di sistema macOS (anche dentro tpik/)
+.DS_Store
+
+# File temporanei/autosave di MATLAB
+*.asv
+*.m~
