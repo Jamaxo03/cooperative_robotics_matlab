@@ -13,3 +13,4 @@
 # File temporanei/autosave di MATLAB
 *.asv
 *.m~
+.DS_Store # keep macOS junk files out of the repo
