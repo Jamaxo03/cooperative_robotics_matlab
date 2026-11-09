@@ -59,7 +59,7 @@ classdef TaskTool < Task
             %
             % Output:
             %   None. Sets obj.A to the [6x6] identity matrix.
-            %#ok<INUSD>
+            %
             obj.A = eye(6);
         end
     end

@@ -24,38 +24,32 @@ endTime  = 50;
 robotModel = UvmsModel();
 sim = UvmsSim(dt, robotModel, endTime);
 
-% initial position
-robotModel.eta = [10.5 35.5 -36 -pi/3 pi/3 pi/2]';
-robotModel.updateTransformations();
-
 % Unity is used only as viewer/sensor endpoint; it is not the simulator.
+%unity = UnityInterface("192.168.64.2");
 unity = UnityInterface("127.0.0.1");
 
 %% Define one action as a strict-priority stack of tasks
 % The first cell is the highest-priority task. Add safety tasks before the action objective when extending this exercise (for example, joint limits).
+task_vehicle_position = TaskVehiclePosition();
+task_vehicle_horizontal_att = TaskHorizontalAttitude();
 task_tool = TaskTool();
+move_vehicle_tasks = {task_vehicle_horizontal_att, task_vehicle_position};
 move_tool_tasks = {task_tool};
-task_move = TaskVehicle();
-move_vehicle_tasks = {task_move};
-task_horizontal = TaskHorizontalAttitude();
-reach_and_horizontal = {task_horizontal, task_tool};
 
 % Actions are registered and selected by name; the task order still defines strict priority within each action.
 actionManager = ActionManager(robotModel);
-actionManager.addAction("move_tool", move_tool_tasks);
 actionManager.addAction("move_vehicle", move_vehicle_tasks);
-actionManager.addAction("reach_and_horizontal", reach_and_horizontal);
-
-actionManager.setCurrentAction("reach_and_horizontal")
+actionManager.addAction("move_tool", move_tool_tasks);
+actionManager.setCurrentAction("move_vehicle");
 
 % The logger monitors the tasks belonging to the action selected above.
-task_set = reach_and_horizontal;
+task_set = move_vehicle_tasks;
 
 %% Set desired poses
 % Positions are in metres and orientations are [roll pitch yaw] in radians. Both poses are expressed in the inertial/world frame.
 w_arm_goal_position = [12.2025, 37.3748, -39.8860]';
 w_arm_goal_orientation = [0, pi, pi/2];
-w_vehicle_goal_position = [10.5, 37.5, -38]';
+w_vehicle_goal_position = [12.0, 37.5, -38]';
 w_vehicle_goal_orientation = [0, 0, 0];
 
 % Store the goals as homogeneous transforms in the shared model.
