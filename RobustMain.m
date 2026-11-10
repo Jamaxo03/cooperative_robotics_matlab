@@ -18,7 +18,7 @@ clc; clear; close all;
 %% Configure and initialize the simulation
 % dt is both the integration step and the nominal controller sample time.
 dt       = 0.005;
-endTime  = 50;
+endTime  = 20;
 
 % UvmsModel owns state and kinematics; UvmsSim updates that shared handle.
 robotModel = UvmsModel();
@@ -33,7 +33,8 @@ unity = UnityInterface("127.0.0.1");
 task_vehicle_position = TaskVehiclePosition();
 task_vehicle_horizontal_att = TaskHorizontalAttitude();
 task_tool = TaskTool();
-move_vehicle_tasks = {task_vehicle_horizontal_att, task_vehicle_position};
+task_min_altitude = TaskAltitude();
+move_vehicle_tasks = {task_min_altitude, task_vehicle_position};
 move_tool_tasks = {task_tool};
 
 % Actions are registered and selected by name; the task order still defines strict priority within each action.
@@ -49,7 +50,7 @@ task_set = move_vehicle_tasks;
 % Positions are in metres and orientations are [roll pitch yaw] in radians. Both poses are expressed in the inertial/world frame.
 w_arm_goal_position = [12.2025, 37.3748, -39.8860]';
 w_arm_goal_orientation = [0, pi, pi/2];
-w_vehicle_goal_position = [12.0, 37.5, -38]';
+w_vehicle_goal_position = [12.2025 37.3748 -39.8860]';
 w_vehicle_goal_orientation = [0, 0, 0];
 
 % Store the goals as homogeneous transforms in the shared model.
