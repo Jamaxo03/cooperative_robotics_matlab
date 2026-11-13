@@ -34,7 +34,7 @@ task_vehicle_position = TaskVehiclePosition();
 task_vehicle_horizontal_att = TaskHorizontalAttitude();
 task_tool = TaskTool();
 task_min_altitude = TaskAltitude();
-move_vehicle_tasks = {task_min_altitude, task_vehicle_position};
+move_vehicle_tasks = {task_min_altitude};
 move_tool_tasks = {task_tool};
 
 % Actions are registered and selected by name; the task order still defines strict priority within each action.

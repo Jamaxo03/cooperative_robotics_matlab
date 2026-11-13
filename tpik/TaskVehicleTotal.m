@@ -1,4 +1,4 @@
-classdef TaskVehicle < Task
+classdef TaskVehicleTotal < Task
     %TASKTOOL Six-dimensional Cartesian pose task for the UVMS tool.
     %
     % The task drives the tool frame vTt toward the goal frame vTg. Both frames are expressed relative to the vehicle, so the resulting error, reference velocity and Jacobian use a consistent vehicle-frame representation. All six components are permanently active.
