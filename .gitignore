@@ -1,0 +1,15 @@
+# File del template che non modifichiamo
+/icat/
+/robust_robot/
+/tools/
+/SimulationLogger.m
+/UnityInterface.m
+/UvmsModel.m
+/UvmsSim.m
+
+# File di sistema macOS
+.DS_Store
+
+# Autosave di MATLAB
+*.asv
+*.m~
