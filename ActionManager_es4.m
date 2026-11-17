@@ -18,7 +18,9 @@ classdef ActionManager_es4 < handle
         dof              % Total dimension of ydot = [q_dot; v_nu].
         satMin           % [dof x 1] original lower system-velocity limits.
         satMax           % [dof x 1] original upper system-velocity limits.
-
+        unifiedList = {}
+        tTransition = 0
+        switchTime = 0
     end
 
     properties (Constant, Access = private)
@@ -79,7 +81,7 @@ classdef ActionManager_es4 < handle
             obj.actions(actionName) = {taskStack};
         end
 
-        function [v_nu, q_dot] = computeICAT(obj, robot)
+        function [v_nu, q_dot] = computeICAT(obj, robot, t)
             %COMPUTEICAT Compute arm and vehicle velocity references.
             %
             % Input:
@@ -95,14 +97,30 @@ classdef ActionManager_es4 < handle
                 error('ActionManager:NoActiveAction', 'Select an action before calling computeICAT.');
             end
 
-            % Select the prioritized list associated with the active action.
-            tasks = obj.actions{obj.currentActionName};
+            tasks = obj.unifiedList;
+            N = numel(tasks);
+            tau = t - obj.switchTime;
 
-            % Refresh all configuration-dependent task quantities before the stack is inverted. A task may use robot state in all three calls.
-            for i = 1:length(tasks)
+            inCurr = ismember(1:N, obj.indicesInUnified(obj.actions{obj.currentActionName}));
+            inPrev = ismember(1:N, obj.indicesInUnified(obj.actions{obj.previousActionName}));
+
+            for i = 1:N
                 tasks{i}.updateReference(robot);
                 tasks{i}.updateJacobian(robot);
+
                 tasks{i}.updateActivation(robot);
+
+                if inCurr(i) && inPrev(i)
+                    ap = 1;
+                elseif inCurr(i)
+                    ap = IncreasingBellShapedFunction(0, obj.tTransition, 0, 1, tau);
+                elseif inPrev(i)
+                    ap = DecreasingBellShapedFunction(0, obj.tTransition, 0, 1, tau);
+                else
+                    ap = 0;
+                end
+
+                tasks{i}.A = ap * tasks{i}.A;
             end
 
             % Start with zero commanded velocity, the full system motion space and the original velocity bounds. Each priority consumes part of the available velocity range.
@@ -123,7 +141,7 @@ classdef ActionManager_es4 < handle
             v_nu = ydotbar(obj.dofArm+1:obj.dof);
         end
 
-        function setCurrentAction(obj, actionName)
+        function setCurrentAction(obj, actionName, t)
             %SETCURRENTACTION Select an action by name.
             %
             % Input:
@@ -142,21 +160,31 @@ classdef ActionManager_es4 < handle
                 error('ActionManager:UnknownAction', 'No action named "%s" has been registered.', actionName);
             end
 
+            if actionName == obj.currentActionName
+                return
+            end
             if obj.currentActionName == ""
-                obj.currentActionName = actionName;
+                obj.previousActionName = actionName;
             else 
                 obj.previousActionName = obj.currentActionName;
-                obj.currentActionName = actionName;
             end
+
+            obj.currentActionName = actionName;
+            obj.switchTime = t;
             
         end
 
+        function setUnifiedList(obj, taskStack, tTransition)
+            obj.unifiedList = taskStack;
+            obj.tTransition = tTransition;
+        end 
 
-        function smooth_switch(obj)
-            if t==0
-                obj.currentActionName = obj.currentActionName;
-            else if 0 < t < TaskAltitude
-                
+        function idx = indicesInUnified(obj, taskStack)
+            idx = zeros(1, numel(taskStack));
+            for k = 1:numel(taskStack)
+                idx(k) = find(cellfun(@(u) u == taskStack{k}, obj.unifiedList));
+            end
         end
+        
     end
 end

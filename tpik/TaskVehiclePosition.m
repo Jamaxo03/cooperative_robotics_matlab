@@ -5,7 +5,7 @@ classdef TaskVehiclePosition < Task
 
     properties
         feedbackGain = 3          % Proportional gain that converts position error into a linear velocity reference [1/s].
-        maxLinearVelocity = 0.5   % Maximum absolute component of the linear velocity reference [m/s].
+        maxLinearVelocity = 1   % Maximum absolute component of the linear velocity reference [m/s].
     end
 
     methods

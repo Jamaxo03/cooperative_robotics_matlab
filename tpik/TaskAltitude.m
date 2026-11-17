@@ -27,7 +27,7 @@ classdef TaskAltitude < Task
             if isnan(robot.altitude)
                 obj.xdotbar = 0;                 % no measurement yet: request nothing
             else
-                obj.xdotbar = Saturate(obj.feedbackGain*((obj.distMax + obj.delta) - robot.altitude), 0.2);
+                obj.xdotbar = Saturate(obj.feedbackGain*((obj.distMax + obj.delta) - robot.altitude), 0.5);
             end
             end
 
